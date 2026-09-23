@@ -11,7 +11,7 @@ import base64
 import time
 
 # @BotFather থেকে পাওয়া আপনার আসল বোট টোকেনটি এখানে বসাবেন
-BOT_TOKEN = "8711405137:AAEVkJ7jRSonj-FE2XRhfNiChyyRr6uX770"
+BOT_TOKEN = "8711405137:AAFR_x2ucVXfH9oPAnNYosx5iK0qclm0hKY"
 ADMIN_ID = 8298133943  # আপনার ফিক্সড অ্যাডমিন আইডি
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -219,6 +219,51 @@ def send_welcome(message):
     add_user(user_id, message.from_user.username, message.from_user.first_name, referred_by)
     welcome_text = "⚡ **নেক্সট-জেন সাইবার সিকিউরিটি ও ইন্টেলিজেন্স ড্যাশবোর্ডে স্বাগতম!**\n\n🎯 *বোটটিকে অত্যাধুনিক ক্লাউড মডিউলে আপগ্রেড করা হয়েছে। টপ ফিচারগুলো উপভোগ করতে নিচে ক্লিক করুন।*"
     bot.reply_to(message, welcome_text, parse_mode="Markdown", reply_markup=main_menu_keyboard(user_id))
+
+# ---- সাধারণ টেক্সট ও মেনু বাটন হ্যান্ডলার ----
+@bot.message_handler(content_types=['text'])
+def handle_text_messages(message):
+    user_id = message.from_user.id
+    text = message.text
+
+    # রেট লিমিটার চেক
+    allowed, wait_time = is_cooled_down(user_id)
+    if not allowed:
+        bot.reply_to(message, f"⏳ প্লিজ একটু অপেক্ষা করুন! আরও {wait_time} সেকেন্ড পরে আবার চেষ্টা করুন।")
+        return
+
+    if text == "📊 আমার প্রোফাইল কার্ড":
+        ref_count, points, is_premium = get_user_data(user_id)
+        status_str = "💎 প্রিমিয়াম মেম্বার" if is_premium == 1 else "👤 সাধারণ ইউজার"
+        profile_msg = (
+            f"📊 **আপনার প্রোফাইল ইনফো:**\n\n"
+            f"🆔 ইউজার আইডি: `{user_id}`\n"
+            f"⭐ পয়েন্ট: `{points}`\n"
+            f"👥 মোট রেফার: `{ref_count}` জন\n"
+            f"🌟 অ্যাকাউন্ট স্ট্যাটাস: {status_str}"
+        )
+        bot.reply_to(message, profile_msg, parse_mode="Markdown")
+
+    elif text == "👥 আমার রেফারেল":
+        ref_count, points, _ = get_user_data(user_id)
+        bot_info = bot.get_me()
+        ref_link = f"https://t.me/{bot_info.username}?start={user_id}"
+        ref_text = (
+            f"👥 **আপনার রেফারেল লিংক:**\n{ref_link}\n\n"
+            f"🎯 মোট রেফার করেছেন: `{ref_count}` জন\n"
+            f"🎁 প্রতি রেফারে পয়েন্ট পাবেন ১০টি।"
+        )
+        bot.reply_to(message, ref_text, parse_mode="Markdown")
+
+    elif text == "🎁 রিডিম কোড":
+        bot.reply_to(message, "🎁 রিডিম কোড ব্যবহার করতে এভাবে লিখুন:\n`/redeem YOUR_CODE`", parse_mode="Markdown")
+
+    elif text == "💎 প্রিমিয়াম কিনুন":
+        bot.reply_to(message, "💎 প্রিমিয়াম মেম্বারশিপ পেতে অ্যাডমিনের সাথে যোগাযোগ করুন অথবা পেমেন্ট করে TxID পাঠান।", parse_mode="Markdown")
+
+    else:
+        # অন্যান্য সিকিউরিটি টুলস বা বাটনগুলোর রেসপন্স
+        bot.reply_to(message, f"⚙️ `{text}` ফিচারটি প্রসেস করা হচ্ছে... দয়া করে একটু অপেক্ষা করুন।", parse_mode="Markdown")
 
 # ---- ইনলাইন বাটন হ্যান্ডলার ----
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('prem_', 'vuln_')))
