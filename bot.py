@@ -252,3 +252,6 @@ def handle_callbacks(call):
             "redirect": "⚠️ WARNING: সাব-ডিরেক্টরি রাউটিংয়ে Open Redirect এর ঝুঁকি রয়েছে।"
         }
         res_vuln = mock_payloads.get(v_type, "🟢 SAFE: কোনো ক্রিটিক্যাল বাগ পাওয়া যায়নি।")
+if __name__ == '__main__':
+    bot.infinity_polling()
+    
