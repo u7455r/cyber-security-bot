@@ -11,7 +11,7 @@ import base64
 import time
 
 # @BotFather থেকে পাওয়া আপনার আসল বোট টোকেনটি এখানে বসাবেন
-BOT_TOKEN = "8711405137:AAEcyqxrrOaXNPbsliN7stS1l0lgU8f1Nng"
+BOT_TOKEN = "8711405137:AAEVkJ7jRSonj-FE2XRhfNiChyyRr6uX770"
 ADMIN_ID = 8298133943  # আপনার ফিক্সড অ্যাডমিন আইডি
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -252,6 +252,7 @@ def handle_callbacks(call):
             "redirect": "⚠️ WARNING: সাব-ডিরেক্টরি রাউটিংয়ে Open Redirect এর ঝুঁকি রয়েছে।"
         }
         res_vuln = mock_payloads.get(v_type, "🟢 SAFE: কোনো ক্রিটিক্যাল বাগ পাওয়া যায়নি।")
+        bot.edit_message_text(res_vuln, chat_id=call.message.chat.id, message_id=msg_scan.message_id)
+
 if __name__ == '__main__':
     bot.infinity_polling()
-    
